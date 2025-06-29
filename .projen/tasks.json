@@ -73,32 +73,19 @@
         }
       ]
     },
-    "deploy": {
-      "name": "deploy",
-      "description": "Deploys your CDK app to the AWS cloud",
+    "deploy:dev": {
+      "name": "deploy:dev",
       "steps": [
         {
-          "exec": "cdk deploy",
-          "receiveArgs": true
+          "exec": "cdk --app cdk.out --outputs-file cdk-outputs-dev.json --progress events --require-approval never deploy projen-pipelines-dev"
         }
       ]
     },
-    "destroy": {
-      "name": "destroy",
-      "description": "Destroys your cdk app in the AWS cloud",
+    "diff:dev": {
+      "name": "diff:dev",
       "steps": [
         {
-          "exec": "cdk destroy",
-          "receiveArgs": true
-        }
-      ]
-    },
-    "diff": {
-      "name": "diff",
-      "description": "Diffs the currently deployed app against your code",
-      "steps": [
-        {
-          "exec": "cdk diff"
+          "exec": "cdk --app cdk.out diff projen-pipelines-dev"
         }
       ]
     },
@@ -124,6 +111,14 @@
         {
           "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern $@ src test build-tools projenrc .projenrc.ts",
           "receiveArgs": true
+        }
+      ]
+    },
+    "fastdiff:dev": {
+      "name": "fastdiff:dev",
+      "steps": [
+        {
+          "exec": "cdk --app cdk.out diff --no-changeset projen-pipelines-dev"
         }
       ]
     },
@@ -166,10 +161,29 @@
       "name": "pre-compile",
       "description": "Prepare the project for compilation"
     },
+    "publish:assets": {
+      "name": "publish:assets",
+      "steps": [
+        {
+          "spawn": "publish:assets:dev"
+        }
+      ]
+    },
+    "publish:assets:dev": {
+      "name": "publish:assets:dev",
+      "steps": [
+        {
+          "exec": "npx cdk-assets -p cdk.out/projen-pipelines-dev.assets.json publish"
+        }
+      ]
+    },
     "synth": {
       "name": "synth",
       "description": "Synthesizes your cdk app into cdk.out",
       "steps": [
+        {
+          "exec": "rm -rf cdk.out"
+        },
         {
           "exec": "cdk synth"
         }
@@ -179,6 +193,9 @@
       "name": "synth:silent",
       "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of \"yarn build\")",
       "steps": [
+        {
+          "exec": "rm -rf cdk.out"
+        },
         {
           "exec": "cdk synth -q"
         }
@@ -214,31 +231,19 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,projen-pipelines,ts-jest,ts-node,typescript"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@types/jest,@types/node,@types/standard-version,cdk-assets,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,projen-pipelines,standard-version,ts-jest,ts-node,typescript"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @stylistic/eslint-plugin @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen projen-pipelines ts-jest ts-node typescript aws-cdk-lib constructs"
+          "exec": "yarn upgrade @stylistic/eslint-plugin @types/jest @types/node @types/standard-version @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk cdk-assets esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen projen-pipelines standard-version ts-jest ts-node typescript aws-cdk-lib constructs"
         },
         {
           "exec": "npx projen"
         },
         {
           "spawn": "post-upgrade"
-        }
-      ]
-    },
-    "watch": {
-      "name": "watch",
-      "description": "Watches changes in your source code and rebuilds and deploys to the current account",
-      "steps": [
-        {
-          "exec": "cdk deploy --hotswap"
-        },
-        {
-          "exec": "cdk watch"
         }
       ]
     }

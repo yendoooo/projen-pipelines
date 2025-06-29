@@ -49,4 +49,7 @@ junit.xml
 /cdk.out/
 .cdk.staging/
 .parcel-cache/
+/cdk-outputs-*.json
+!/src/app.ts
+!/.github/workflows/deploy.yml
 !/.projenrc.ts
