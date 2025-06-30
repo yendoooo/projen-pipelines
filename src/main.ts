@@ -56,6 +56,7 @@ const devEnv = {
   region: process.env.CDK_DEFAULT_REGION,
 };
 
+// Deploy 設定適用
 const app = new PipelineApp({
   provideDevStack: (scope, id, props) => {
     return new BackendStack(scope, id, props);
@@ -64,7 +65,7 @@ const app = new PipelineApp({
 
 new MyStack(app, 'MyStack', { env: devEnv });
 
+// app 全体に RemovalPolicy を設定
 RemovalPolicies.of(app).destroy()
-// new MyStack(app, 'projen-pipelines-prod', { env: prodEnv });
 
 app.synth();
