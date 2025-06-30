@@ -2,6 +2,10 @@ import { App, CfnOutput, RemovalPolicies, Stack, StackProps } from 'aws-cdk-lib'
 import { Construct } from 'constructs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
+import { PipelineApp } from './app'
+import { BackendStack } from './stack'
+
+
 export class MyStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
@@ -52,10 +56,15 @@ const devEnv = {
   region: process.env.CDK_DEFAULT_REGION,
 };
 
-const app = new App();
+const app = new PipelineApp({
+  provideDevStack: (scope, id, props) => {
+    return new BackendStack(scope, id, props);
+  },
+});
 
-const myStack = new MyStack(app, 'MyStack', { env: devEnv });
-RemovalPolicies.of(myStack).destroy()
+new MyStack(app, 'MyStack', { env: devEnv });
+
+RemovalPolicies.of(app).destroy()
 // new MyStack(app, 'projen-pipelines-prod', { env: prodEnv });
 
 app.synth();
